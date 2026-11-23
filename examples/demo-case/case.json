@@ -1,0 +1,30 @@
+{
+  "case_id": "demo-patent-001",
+  "title": "NLRP3 炎症小体抑制剂专利与技术文献检索（合成演示）",
+  "query": "NLRP3 inflammasome inhibitor for gout",
+  "query_terms": ["nlrp3", "inflammasome", "inhibitor", "gout"],
+  "classification_filters": ["A61K", "C07D"],
+  "assignee_filter": ["Inflazome"],
+  "as_of": "2026-11-01",
+  "target_publications": ["US20200123456A1", "EP3873456A1", "CN112345678A"],
+  "target_priorities": ["US2020-123456"],
+  "extra_queries": [
+    {
+      "id": "q-zero",
+      "type": "keyword",
+      "terms": ["biomarker", "panel"],
+      "note": "负向对照查询：本语料不含 biomarker panel 主题，预期零命中并给出显式无结果说明。"
+    }
+  ],
+  "output_contract": {
+    "results": "排序后的候选文献列表，逐条含分数、理由与来源定位",
+    "families": "专利族分组及归并依据",
+    "legal_status": "逐条法律状态、日期、来源与时效",
+    "queries": "检索式构造记录与命中数",
+    "evidence": "来源定位与原文引证",
+    "excluded": "被排除记录及原因",
+    "no_result_reasons": "零命中或无结果原因",
+    "uncertainty": "缺失元数据、权限与状态不确定性",
+    "summary": "一段话运行摘要（字符串）"
+  }
+}
