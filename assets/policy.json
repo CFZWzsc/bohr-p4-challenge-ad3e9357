@@ -1,0 +1,83 @@
+{
+  "version": "1.0.0",
+  "description": "专利与技术文献检索 Skill 的打分权重、容量上限、排序阈值与权限分级。sk_entry.py 启动时读取；缺失或损坏时回退到脚本内置默认值。",
+  "weights": {
+    "title": 3,
+    "abstract": 2,
+    "claims": 1,
+    "classification": 2,
+    "assignee": 2,
+    "number": 6,
+    "priority": 2
+  },
+  "weights_rationale": {
+    "title": "标题最能代表技术主题，每个查询词命中一次计 3 分。",
+    "abstract": "摘要次之，命中计 2 分；同一词已在标题命中时不重复计分。",
+    "claims": "权利要求用于区分保护范围，命中计 1 分；同一词按标题>摘要>权利要求取最高字段一次。",
+    "classification": "每个匹配的 CPC/IPC 主组前缀计 2 分。",
+    "assignee": "申请人/专利权人限定命中计 2 分，可多次命中分别计分。",
+    "number": "目标公开号/申请号精确命中计 6 分，优先级最高。",
+    "priority": "目标优先权号精确命中计 2 分，用于同族定位。"
+  },
+  "caps": {
+    "max_records": 2000,
+    "max_candidates": 200,
+    "max_terms": 24,
+    "excerpt_chars": 240,
+    "max_quotes": 4,
+    "max_excluded": 200,
+    "max_family_members": 50
+  },
+  "ranking": {
+    "min_score": 1,
+    "top_k": 50,
+    "tie_break": "score_desc_then_identifier"
+  },
+  "stale_days": 180,
+  "score_scale_max": 100,
+  "access_levels": {
+    "open": {
+      "color": "green",
+      "allowed_display": "metadata,abstract_excerpt,claims_excerpt",
+      "retention": "unlimited",
+      "degrade": "none",
+      "note": "公开/开放许可来源；可展示元数据与摘录，引用时仍需标注来源与查询日期。"
+    },
+    "restricted": {
+      "color": "yellow",
+      "allowed_display": "metadata_only",
+      "retention": "session_only",
+      "degrade": "quote_withheld",
+      "note": "订阅或登录受限来源；仅展示号码、标题等元数据，不复制摘要/权利要求原文。"
+    },
+    "prohibited": {
+      "color": "red",
+      "allowed_display": "identifier_only",
+      "retention": "none",
+      "degrade": "metadata_only",
+      "note": "禁止展示或留存原文；仅保留可复核的标识符与来源线索。"
+    },
+    "unknown": {
+      "color": "yellow",
+      "allowed_display": "metadata,abstract_excerpt",
+      "retention": "review_required",
+      "degrade": "mark_unverified",
+      "note": "许可字段缺失；按未核实处理，展示范围待人工确认。"
+    }
+  },
+  "access_aliases": {
+    "open": ["open", "public", "free", "cc-by", "cc by", "open-access", "open access", "public domain"],
+    "restricted": ["restricted", "subscriber", "subscription", "paid", "login", "licensed", "licence", "license_required"],
+    "prohibited": ["prohibited", "confidential", "embargo", "embargoed", "do not display", "internal only", "red"]
+  },
+  "stop_terms": [
+    "the", "and", "for", "with", "from", "into", "using", "use", "uses", "used",
+    "method", "methods", "study", "studies", "based", "novel", "new", "system",
+    "systems", "approach", "approaches", "analysis", "result", "results", "paper",
+    "papers", "patent", "patents", "search", "searching", "literature", "technical",
+    "review", "article", "articles", "data", "report", "reports", "task", "case",
+    "专利", "技术", "文献", "检索", "研究", "方法", "分析", "系统", "数据", "问题",
+    "结果", "以及", "相关", "进行", "通过", "一种", "包括", "用于", "可以", "需要",
+    "提供", "本文", "本节", "任务", "案例", "输出", "输入"
+  ]
+}
