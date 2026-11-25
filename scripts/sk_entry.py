@@ -1768,6 +1768,8 @@ def build_review(payload):
             md_cell(",".join(family.get("jurisdictions", []))),
             md_cell(",".join(family.get("statuses", []))), md_cell(family.get("basis"))))
     lines.extend(["", "## 5. 法律状态", "",
+                  "> 范围：本表覆盖去重后的全部记录（含被排除记录）；候选与排除的归属见第 3、7 节。",
+                  "",
                   "| 标识符 | 状态 | 状态日期 | 来源 | 时效 | 置信度 |",
                   "|---|---|---|---|---|---|"])
     for row in payload.get("legal_status", [])[:40]:
@@ -1784,10 +1786,18 @@ def build_review(payload):
             md_cell(note.get("color")), md_cell(note.get("allowed_display")),
             md_cell(note.get("action"))))
     lines.extend(["", "## 7. 排除、遗漏与无结果", ""])
-    lines.append("排除：")
+    lines.append("排除（独立记录，未进入候选）：")
     for item in payload.get("excluded", [])[:40]:
         lines.append("- `%s` %s（%s）" % (item.get("identifier"), item.get("reason"), item.get("reason_code")))
     if not payload.get("excluded"):
+        lines.append("- 无")
+    lines.append("")
+    lines.append("已合并（不是排除；同一记录的不同来源已并入候选）：")
+    for item in payload.get("duplicates", [])[:40]:
+        lines.append("- `%s` 合并自 `%s` 与 `%s`：%s" % (
+            item.get("identifier"), item.get("kept_locator"),
+            item.get("duplicate_locator"), item.get("reason")))
+    if not payload.get("duplicates"):
         lines.append("- 无")
     lines.append("")
     lines.append("遗漏：")
@@ -1941,7 +1951,7 @@ def build_payload(input_path, policy):
         "records": len(deduped),
         "duplicates_merged": len(duplicates),
         "candidates": len(candidates),
-        "excluded": len(excluded) + len(duplicates),
+        "excluded": len(excluded),
         "families": len(families),
         "merged_families": sum(1 for family in families if family["size"] > 1),
         "conflicts": len(conflicts),
@@ -1956,6 +1966,27 @@ def build_payload(input_path, policy):
         status = "partial"
     else:
         status = "success"
+
+    duplicate_rows = [{
+        "record_id": item["record_id"],
+        "identifier": item["identifier"],
+        "merged_into": item["identifier"],
+        "kept_locator": item.get("kept_locator"),
+        "duplicate_locator": item.get("duplicate_locator"),
+        "reason": item["reason"],
+    } for item in duplicates]
+    candidate_ids = {candidate["identifier"] for candidate in candidates}
+    excluded_ids = {item["identifier"] for item in excluded}
+    overlap = sorted(candidate_ids & excluded_ids)
+    self_check = {
+        "candidates_excluded_disjoint": not overlap,
+        "identifier_overlap": overlap,
+        "duplicates_are_not_exclusions": True,
+        "counts_closed": len(deduped) == len(candidates) + len(excluded),
+        "checked": ["identifier disjointness", "record accounting", "duplicate vs exclusion separation"],
+    }
+    if overlap or not self_check["counts_closed"]:
+        status = "partial"
 
     case_id = case_identifier(case)
     zero_queries = sum(1 for query in queries if query.get("hits", 0) == 0)
@@ -1974,15 +2005,10 @@ def build_payload(input_path, policy):
         "legal_status": status_rows,
         "access_notes": access_notes,
         "filters": build_filters(case, policy, config, len(deduped), len(candidates),
-                                 len(excluded) + len(duplicates)),
-        "excluded": excluded + [{
-            "record_id": item["record_id"],
-            "identifier": item["identifier"],
-            "title": None,
-            "score": 0,
-            "reason_code": "duplicate_merged",
-            "reason": item["reason"],
-        } for item in duplicates],
+                                 len(excluded)),
+        "excluded": excluded,
+        "duplicates": duplicate_rows,
+        "self_check": self_check,
         "misses": misses,
         "no_result_reasons": no_result_reasons,
         "conflicts": conflicts,
