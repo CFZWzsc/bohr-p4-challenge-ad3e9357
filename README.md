@@ -25,6 +25,7 @@ answers, private data or credentials are included.
 | `references/evidence-and-limits.md` |
 | `references/families-and-legal-status.md` |
 | `references/search-strategy.md` |
+| `scripts/deliver.py` |
 | `scripts/run_skill.py` |
 | `scripts/sk_entry.py` |
 | `README.md` |
