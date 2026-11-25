@@ -2096,6 +2096,19 @@ def main(argv=None):
         pass
 
     try:
+        try:
+            import deliver as _deliver
+            _case = {}
+            try:
+                _p = Path(args.input)
+                _cf = _p if _p.is_file() else _p / "case.json"
+                if _cf.is_file():
+                    _case = json.loads(_cf.read_text(encoding="utf-8"))
+            except Exception:
+                _case = {}
+            _deliver.finalize(payload, str(out_path), _case)
+        except Exception:
+            pass
         write_outputs(str(out_path), payload)
     except Exception as exc:
         sys.stderr.write(json.dumps({"status": "failed", "stage": "write_output",
