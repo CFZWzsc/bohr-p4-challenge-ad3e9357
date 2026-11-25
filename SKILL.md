@@ -264,3 +264,10 @@ python scripts/run_skill.py \
 - 相关性是词项 + 分类号匹配，不理解权利要求范围、等同原则或侵权边界。
 - 覆盖范围只反映输入语料，不代表全球专利布局或数据库完整覆盖。
 - 受限/禁止记录的元数据也可能不完整；`verification=metadata_only` 不等于官方核验。
+
+## 运行时产物（单次运行自动写出）
+
+入口脚本在写 `result.json` 的同一次运行里还会写出：`report.md`（人读报告，每条带源定位）、
+`provenance.json`（条目 → 来源定位映射）、`records.csv`（平面结果表）、
+`validation.json`（自检项）。`output_contract` 中的产物类字段直接指向这些文件，
+无需第二次运行或人工补写。
